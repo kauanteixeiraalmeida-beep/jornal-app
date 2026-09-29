@@ -1,0 +1,138 @@
+.carousel-container {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-main {
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  gap: 16px;
+  align-items: center;
+}
+
+.carousel-btn {
+  border: 1px solid rgba(191, 219, 254, 0.25);
+  background: rgba(59, 130, 246, 0.14);
+  color: #bfdbfe;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.carousel-content {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  min-height: 420px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.carousel-media {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-pdf {
+  object-fit: contain;
+  background: #fff;
+}
+
+.carousel-video {
+  object-fit: cover;
+  background: #000;
+}
+
+.carousel-info {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 36px 24px 22px;
+  background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.92) 42%, rgba(15, 23, 42, 0.98));
+}
+
+.carousel-date {
+  display: inline-block;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.carousel-info h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  line-height: 1.1;
+}
+
+.carousel-info p {
+  margin: 0;
+  color: #dbeafe;
+  line-height: 1.6;
+  max-width: 620px;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.dot.active {
+  background: #60a5fa;
+  transform: scale(1.2);
+}
+
+.autoplay-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  border: 1px solid rgba(191, 219, 254, 0.25);
+  background: rgba(59, 130, 246, 0.14);
+  color: #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .carousel-main {
+    grid-template-columns: 40px 1fr 40px;
+  }
+
+  .carousel-content,
+  .carousel-media {
+    min-height: 310px;
+    height: 310px;
+  }
+
+  .autoplay-toggle {
+    position: static;
+    display: block;
+    margin: 16px auto 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .carousel-main {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-btn {
+    display: none;
+  }
+}
