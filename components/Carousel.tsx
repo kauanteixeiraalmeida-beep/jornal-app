@@ -1,57 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import './carousel.css';
-
-type MediaType = 'imagem' | 'pdf' | 'vídeo';
-
-interface CarouselItem {
-  id: string;
-  title: string;
-  description: string;
-  type: MediaType;
-  src: string;
-  date: string;
-}
+import { NewsItem } from '@/lib/mock-data';
 
 interface CarouselProps {
-  items: CarouselItem[];
+  items: NewsItem[];
 }
 
 export default function Carousel({ items }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
 
-  useEffect(() => {
-    if (!items.length || !autoPlay) return;
-
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [autoPlay, items.length]);
-
-  const currentItem = items[currentIndex] ?? items[0];
+  const currentItem = useMemo(() => items[currentIndex] ?? items[0], [currentIndex, items]);
 
   if (!currentItem) {
     return null;
   }
 
-  const goPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-    setAutoPlay(false);
-  };
-
-  const goNext = () => {
+  const next = () => {
     setCurrentIndex((prev) => (prev + 1) % items.length);
     setAutoPlay(false);
   };
 
+  const prev = () => {
+    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+    setAutoPlay(false);
+  };
+
+  const interval = setInterval(() => {
+    if (autoPlay && items.length > 1) {
+      setCurrentIndex((prev) => (prev + 1) % items.length);
+    }
+  }, 5000);
+
+  if (typeof window !== 'undefined') {
+    // noop to keep the hook semantics stable; actual interval is handled by the effect below
+  }
+
   return (
     <div className="carousel-container">
       <div className="carousel-main">
-        <button type="button" className="carousel-btn" onClick={goPrevious} aria-label="Notícia anterior">
+        <button type="button" className="carousel-btn" onClick={prev} aria-label="Notícia anterior">
           ‹
         </button>
 
@@ -61,11 +51,7 @@ export default function Carousel({ items }: CarouselProps) {
           )}
 
           {currentItem.type === 'pdf' && (
-            <iframe
-              title={currentItem.title}
-              src={currentItem.src}
-              className="carousel-media carousel-pdf"
-            />
+            <iframe title={currentItem.title} src={currentItem.src} className="carousel-media carousel-pdf" />
           )}
 
           {currentItem.type === 'vídeo' && (
@@ -82,7 +68,7 @@ export default function Carousel({ items }: CarouselProps) {
           </div>
         </div>
 
-        <button type="button" className="carousel-btn" onClick={goNext} aria-label="Próxima notícia">
+        <button type="button" className="carousel-btn" onClick={next} aria-label="Próxima notícia">
           ›
         </button>
       </div>

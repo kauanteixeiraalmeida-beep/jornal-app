@@ -1,17 +1,7 @@
 'use client';
 
 import './news-grid.css';
-
-type MediaType = 'imagem' | 'pdf' | 'vídeo';
-
-interface NewsItem {
-  id: string;
-  title: string;
-  description: string;
-  type: MediaType;
-  src: string;
-  date: string;
-}
+import { NewsItem } from '@/lib/mock-data';
 
 interface NewsGridProps {
   items: NewsItem[];

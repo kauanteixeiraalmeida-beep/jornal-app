@@ -30,9 +30,10 @@ export default function LoginPage() {
 
     try {
       const user = {
-        id: crypto.randomUUID(),
+        id: typeof crypto !== 'undefined' ? crypto.randomUUID() : String(Date.now()),
         name: isRegister ? name.trim() : email.split('@')[0],
         email: email.trim(),
+        role: email.trim().toLowerCase() === 'admin@jornal.com' ? 'admin' : 'user',
       };
 
       localStorage.setItem('journal-user', JSON.stringify(user));
@@ -91,7 +92,7 @@ export default function LoginPage() {
 
         <div className="demo-note">
           Use qualquer e-mail para testar. <br />
-          A autenticação é local e personalizada por usuário.
+          Para testar o painel de administração, use: admin@jornal.com
         </div>
       </div>
     </main>

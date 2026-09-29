@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #0f172a 0%, #111827 28%, #1f2937 100%);
   color: var(--text-color, #f8fafc);
+  font-size: var(--font-size, 1rem);
 }
 
 .settings-header {
@@ -53,13 +54,13 @@
   gap: 16px;
 }
 
-.color-setting {
+.color-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.color-setting label {
+.color-item label {
   color: #cbd5e1;
   font-size: 0.9rem;
 }
@@ -100,25 +101,6 @@
   align-items: center;
   gap: 10px;
   color: #dbeafe;
-}
-
-.input-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 240px;
-}
-
-.input-row label {
-  color: #cbd5e1;
-}
-
-.input-row input {
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f8fafc;
-  padding: 10px 12px;
 }
 
 .preview-card {

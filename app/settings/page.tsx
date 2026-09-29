@@ -4,68 +4,62 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import './settings.css';
 
-type FontSize = 'small' | 'medium' | 'large';
-
-interface ThemeSettings {
-  primaryColor: string;
-  backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-}
-
-interface UserSettings {
-  theme: ThemeSettings;
-  fontSize: FontSize;
-  itemsPerPage: number;
-}
-
-const defaultSettings: UserSettings = {
-  theme: {
+export default function SettingsPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [theme, setTheme] = useState({
     primaryColor: '#3b82f6',
     backgroundColor: '#0f172a',
     textColor: '#f8fafc',
     accentColor: '#fbbf24',
-  },
-  fontSize: 'medium',
-  itemsPerPage: 9,
-};
-
-export default function SettingsPage() {
-  const router = useRouter();
-  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+  });
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = localStorage.getItem('journal-user');
-    if (!currentUser) {
+    const storedUser = localStorage.getItem('journal-user');
+    if (!storedUser) {
       router.replace('/login');
       return;
     }
 
-    const savedSettings = localStorage.getItem('journal-settings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+
+    const storedTheme = localStorage.getItem(`journal-theme-${parsedUser.email}`);
+    if (storedTheme) {
+      const parsed = JSON.parse(storedTheme);
+      setTheme(parsed.theme || theme);
+      setFontSize(parsed.fontSize || 'medium');
     }
 
     setLoading(false);
   }, [router]);
 
-  const applyStyle = {
-    ['--primary-color' as string]: settings.theme.primaryColor,
-    ['--background-color' as string]: settings.theme.backgroundColor,
-    ['--text-color' as string]: settings.theme.textColor,
-    ['--accent-color' as string]: settings.theme.accentColor,
-  };
-
   const handleSave = () => {
-    localStorage.setItem('journal-settings', JSON.stringify(settings));
+    if (!user) return;
+
+    const payload = {
+      theme,
+      fontSize,
+    };
+
+    localStorage.setItem(`journal-theme-${user.email}`, JSON.stringify(payload));
     setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    setTimeout(() => setSaved(false), 2600);
   };
 
   const handleReset = () => {
-    setSettings(defaultSettings);
+    const defaults = {
+      primaryColor: '#3b82f6',
+      backgroundColor: '#0f172a',
+      textColor: '#f8fafc',
+      accentColor: '#fbbf24',
+    };
+
+    setTheme(defaults);
+    setFontSize('medium');
   };
 
   if (loading) {
@@ -73,7 +67,13 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="settings-page" style={applyStyle}>
+    <main className="settings-page" style={{
+      ['--primary-color' as string]: theme.primaryColor,
+      ['--bg-color' as string]: theme.backgroundColor,
+      ['--text-color' as string]: theme.textColor,
+      ['--accent-color' as string]: theme.accentColor,
+      ['--font-size' as string]: fontSize === 'small' ? '0.9rem' : fontSize === 'large' ? '1.1rem' : '1rem',
+    }}>
       <header className="settings-header">
         <button type="button" className="back-btn" onClick={() => router.push('/')}>
           ← Voltar
@@ -85,75 +85,35 @@ export default function SettingsPage() {
         <section className="settings-card">
           <h2>Temas</h2>
           <div className="color-grid">
-            <div className="color-setting">
-              <label htmlFor="primaryColor">Cor primária</label>
+            <div className="color-item">
+              <label htmlFor="primaryColor">Cor principal</label>
               <div className="color-row">
-                <input
-                  id="primaryColor"
-                  type="color"
-                  value={settings.theme.primaryColor}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      theme: { ...settings.theme, primaryColor: e.target.value },
-                    })
-                  }
-                />
-                <span>{settings.theme.primaryColor}</span>
+                <input id="primaryColor" type="color" value={theme.primaryColor} onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })} />
+                <span>{theme.primaryColor}</span>
               </div>
             </div>
 
-            <div className="color-setting">
+            <div className="color-item">
               <label htmlFor="accentColor">Cor de destaque</label>
               <div className="color-row">
-                <input
-                  id="accentColor"
-                  type="color"
-                  value={settings.theme.accentColor}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      theme: { ...settings.theme, accentColor: e.target.value },
-                    })
-                  }
-                />
-                <span>{settings.theme.accentColor}</span>
+                <input id="accentColor" type="color" value={theme.accentColor} onChange={(e) => setTheme({ ...theme, accentColor: e.target.value })} />
+                <span>{theme.accentColor}</span>
               </div>
             </div>
 
-            <div className="color-setting">
-              <label htmlFor="textColor">Cor do texto</label>
+            <div className="color-item">
+              <label htmlFor="textColor">Texto</label>
               <div className="color-row">
-                <input
-                  id="textColor"
-                  type="color"
-                  value={settings.theme.textColor}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      theme: { ...settings.theme, textColor: e.target.value },
-                    })
-                  }
-                />
-                <span>{settings.theme.textColor}</span>
+                <input id="textColor" type="color" value={theme.textColor} onChange={(e) => setTheme({ ...theme, textColor: e.target.value })} />
+                <span>{theme.textColor}</span>
               </div>
             </div>
 
-            <div className="color-setting">
-              <label htmlFor="backgroundColor">Cor do fundo</label>
+            <div className="color-item">
+              <label htmlFor="backgroundColor">Fundo</label>
               <div className="color-row">
-                <input
-                  id="backgroundColor"
-                  type="color"
-                  value={settings.theme.backgroundColor}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      theme: { ...settings.theme, backgroundColor: e.target.value },
-                    })
-                  }
-                />
-                <span>{settings.theme.backgroundColor}</span>
+                <input id="backgroundColor" type="color" value={theme.backgroundColor} onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })} />
+                <span>{theme.backgroundColor}</span>
               </div>
             </div>
           </div>
@@ -162,86 +122,35 @@ export default function SettingsPage() {
         <section className="settings-card">
           <h2>Tamanho da fonte</h2>
           <div className="radio-group">
-            {(['small', 'medium', 'large'] as FontSize[]).map((size) => (
-              <label key={size} className="radio-option">
-                <input
-                  type="radio"
-                  name="fontSize"
-                  checked={settings.fontSize === size}
-                  onChange={() => setSettings({ ...settings, fontSize: size })}
-                />
+            {(['small', 'medium', 'large'] as const).map((option) => (
+              <label key={option} className="radio-option">
+                <input type="radio" name="fontSize" checked={fontSize === option} onChange={() => setFontSize(option)} />
                 <span>
-                  {size === 'small' && 'Pequena'}
-                  {size === 'medium' && 'Média'}
-                  {size === 'large' && 'Grande'}
+                  {option === 'small' && 'Pequena'}
+                  {option === 'medium' && 'Média'}
+                  {option === 'large' && 'Grande'}
                 </span>
               </label>
             ))}
           </div>
         </section>
 
-        <section className="settings-card">
-          <h2>Layout</h2>
-          <div className="input-row">
-            <label htmlFor="itemsPerPage">Notícias por página</label>
-            <input
-              id="itemsPerPage"
-              type="number"
-              min={1}
-              max={20}
-              value={settings.itemsPerPage}
-              onChange={(e) => setSettings({ ...settings, itemsPerPage: Number(e.target.value) })}
-            />
-          </div>
-        </section>
-
         <section className="settings-card preview-card">
           <h2>Pré-visualização</h2>
-          <div
-            className="preview-box"
-            style={{
-              backgroundColor: settings.theme.backgroundColor,
-              color: settings.theme.textColor,
-            }}
-          >
-            <p
-              style={{
-                color: settings.theme.primaryColor,
-                fontSize:
-                  settings.fontSize === 'small'
-                    ? '0.9rem'
-                    : settings.fontSize === 'large'
-                      ? '1.2rem'
-                      : '1rem',
-              }}
-            >
-              Título da notícia
+          <div className="preview-box" style={{ backgroundColor: theme.backgroundColor, color: theme.textColor }}>
+            <p style={{ color: theme.primaryColor, fontSize: fontSize === 'small' ? '0.9rem' : fontSize === 'large' ? '1.2rem' : '1rem' }}>Título da notícia</p>
+            <p style={{ fontSize: fontSize === 'small' ? '0.8rem' : fontSize === 'large' ? '1rem' : '0.9rem' }}>
+              Este é um exemplo do visual do seu jornal pessoal. Sua personalização não afeta os outros usuários.
             </p>
-            <p
-              style={{
-                fontSize:
-                  settings.fontSize === 'small'
-                    ? '0.8rem'
-                    : settings.fontSize === 'large'
-                      ? '1rem'
-                      : '0.9rem',
-              }}
-            >
-              Este é um exemplo do visual do seu jornal pessoal, sem mexer no de outras pessoas.
-            </p>
-            <button type="button" style={{ backgroundColor: settings.theme.accentColor, color: settings.theme.backgroundColor }}>
+            <button type="button" style={{ backgroundColor: theme.accentColor, color: theme.backgroundColor }}>
               Ver mais
             </button>
           </div>
         </section>
 
         <div className="settings-actions">
-          <button type="button" className="reset-btn" onClick={handleReset}>
-            Restaurar
-          </button>
-          <button type="button" className="save-btn" onClick={handleSave}>
-            Salvar
-          </button>
+          <button type="button" className="reset-btn" onClick={handleReset}>Restaurar</button>
+          <button type="button" className="save-btn" onClick={handleSave}>Salvar</button>
         </div>
 
         {saved && <div className="success-box">Personalização salva com sucesso.</div>}
